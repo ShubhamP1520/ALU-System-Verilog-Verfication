@@ -41,10 +41,10 @@ interface alu_inf (input bit clk, RST, CE);
   modport MON ( clocking mon_cb );
   modport REF ( clocking ref_cb );
 
-  /*
+  //Assertions
   //1. RESET assertion
   property ppt_reset;
-        @(posedge clk) RST |=> ##[1:5] (RES == 9'bzzzzzzzz && ERR == 1'bz && E == 1'bz && G == 1'bz && L == 1'bz && COUT == 1'bz && OFLOW == 1'bz)
+    @(posedge clk) RST |=> (RES === 9'bzzzzzzzz && ERR === 1'bz && E === 1'bz && G === 1'bz && L === 1'bz && COUT === 1'bz && OFLOW === 1'bz)
   endproperty
   assert property(ppt_reset)
     $display("RST assertion PASSED at time %0t", $time);
@@ -52,14 +52,15 @@ interface alu_inf (input bit clk, RST, CE);
     $info("RST assertion FAILED @ time %0t", $time);
 
   //2. 16- cycle TIMEOUT assertion
-  property ppt_timeout;
-        @(posedge clk) disable iff(RST) (CE && INP_VALID == 2'b01) |-> ##16 (ERR == 1'b1);
+ property ppt_timeout;
+   @(posedge clk) disable iff(RST)(CE && (INP_VALID == 2'b01 ||  INP_VALID == 2'b10)) |-> !(INP_VALID == 2'b11) [*16] |-> ##1 error;  
   endproperty
-  assert property(ppt_timeout)
-  else $error("Timeout assertion failed at time %0t", $time);
+    
+  assert property (ppt_timeout)  $info("passed");
+    else $info("failed");
 
   //3. ROR/ROL error
-  assert property (@(posedge clk) disable iff(RST) (CE && MODE && (CMD == 12 || CMD == 13) && $countones(OPB) > `SHIFT_W + 1) |=> ##[1:3] ERR )
+    assert property (@(posedge clk) disable iff(RST) (CE && MODE && (CMD == 12 || CMD == 13) && $countones(OPB) > `SHIFT_W + 1) |=> ERR )
   else $info("NO ERROR FLAG RAISED");
 
   //4. CMD out of range
@@ -71,11 +72,11 @@ interface alu_inf (input bit clk, RST, CE);
   else $info("CMD INVALID ERR NOT RAISED");
 
   //6.INP_VALID  assertion
-  //property ppt_valid_inp_valid;
-   // @(posedge clk) disable iff(RST) INP_VALID inside {2'b00, 2'b01, 2'b10, 2'b11};
-  //endproperty
-  //assert property(ppt_valid_inp_valid)
-  //else $info("Invalid INP_VALID value: %b at time %0t", INP_VALID, $time);
+  property ppt_valid_inp_valid;
+   @(posedge clk) disable iff(RST) INP_VALID inside {2'b00, 2'b01, 2'b10, 2'b11};
+  endproperty
+  assert property(ppt_valid_inp_valid)
+  else $info("Invalid INP_VALID value: %b at time %0t", INP_VALID, $time);
 
   // 7. INP_VALID 00 case
   assert property (@(posedge clk) (INP_VALID == 2'b00) |=> ERR )
@@ -88,5 +89,4 @@ interface alu_inf (input bit clk, RST, CE);
   assert property(ppt_clock_enable)
   else $info("Clock enable assertion failed at time %0t", $time);
 
-  */
 endinterface
