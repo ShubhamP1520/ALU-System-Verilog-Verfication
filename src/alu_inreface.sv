@@ -53,7 +53,7 @@ interface alu_inf (input bit clk, RST, CE);
 
   //2. 16- cycle TIMEOUT assertion
  property ppt_timeout;
-   @(posedge clk) disable iff(RST)(CE && (INP_VALID == 2'b01 ||  INP_VALID == 2'b10)) |-> !(INP_VALID == 2'b11) [*16] |-> ##1 error;  
+   @(posedge clk) disable iff(RST)(CE && (INP_VALID == 2'b01 ||  INP_VALID == 2'b10)) |-> !(INP_VALID == 2'b11) [*16] |-> ##1 ERR;  
   endproperty
     
   assert property (ppt_timeout)  $info("passed");
