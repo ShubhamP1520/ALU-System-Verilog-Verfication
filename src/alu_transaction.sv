@@ -19,12 +19,6 @@ class alu_transaction;
   logic L;
   logic E;
 
-  //Constraints
-
-//  constraint cmd_range { MODE == 1; CMD inside{0};
-                      //  }
-
-
 
   // Deep copy method for blueprint pattern
   virtual function alu_transaction copy();
