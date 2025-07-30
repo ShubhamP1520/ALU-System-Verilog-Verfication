@@ -60,7 +60,7 @@ interface alu_inf (input bit clk, RST, CE);
     else $info("failed");
 
   //3. ROR/ROL error
-    assert property (@(posedge clk) disable iff(RST) (CE && MODE && (CMD == 12 || CMD == 13) && OPB[7:4] > 0) |=> ERR )
+    assert property (@(posedge clk) disable iff(RST) (CE && MODE == 0 && (CMD == 12 || CMD == 13) && OPB[7:4] > 0) |=> ERR )
   else $info("NO ERROR FLAG RAISED");
 
   //4. CMD out of range
